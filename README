@@ -1,0 +1,194 @@
+NAME
+
+       Latin1 - "Yet Another JPerl" Source code filter for Latin-1 script
+
+SYNOPSIS
+
+    In your script:
+
+      use Latin1;
+
+    At command prompt:
+
+      perl.exe  yourscript.pl  wild*  *card  and  '*quote*'  are  ok  ...
+      perl58    yourscript.pl  wild*  *card  and  '*quote*'  are  ok  ...
+      perl510   yourscript.pl  wild*  *card  and  '*quote*'  are  ok  ...
+      perl512   yourscript.pl  wild*  *card  and  '*quote*'  are  ok  ...
+      perl64    yourscript.pl  wild*  *card  and  '*quote*'  are  ok  ...
+
+DESCRIPTION
+
+      This software is "Yet Another JPerl" written by Perl.
+
+      To our regret, the Sjis software family cannot treat Latin-1 up to now.
+      This software can supplement those weak points. We can write the script
+      in Latin-1 again.
+
+      This software treats Latin-1 directly. Therefore, there is not UTF8 flag.
+
+INSTALLATION
+
+To install this software, type the following:
+
+   perl Makefile.PL    --- Makefile.PL makes "make.bat" only, and ...
+   make.bat
+   make.bat test
+
+   make.bat install           --- install to current using Perl
+   perl58   make.bat install  --- install to Perl5.8
+   perl510  make.bat install  --- install to Perl5.10
+   perl512  make.bat install  --- install to Perl5.12
+   perl64   make.bat install  --- install to Perl64
+
+MAKE OTHER
+
+   make.bat dist       --- make distribution package
+   make.bat tar.bat    --- make perl script "tar.bat"
+
+PROGRAM COMPOSITION
+
+   Latin1.pm    --- source code filter for Latin-1 script
+   Elatin1.pm   --- run-time routines for Latin1.pm
+   perl58.bat   --- find and run perl5.8  without %PATH% settings
+   perl510.bat  --- find and run perl5.10 without %PATH% settings
+   perl512.bat  --- find and run perl5.12 without %PATH% settings
+   perl64.bat   --- find and run perl64   without %PATH% settings
+
+DEPENDENCIES
+
+This software requires perl5.00503 or later.
+
+LICENSE AND COPYRIGHT
+
+This software is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself. See perlartistic.
+
+This software is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+MAINTAINER
+
+This project was originated by INABA Hitoshi <ina@cpan.org>.
+
+Latin-1(ISO/IEC 8859-1) IN WIKIPEDIA
+
+ISO/IEC 8859-1 (2010.03.06 15:19:00 JST). In Wikipedia: The Free Encyclopedia.
+
+Retrieved from
+http://en.wikipedia.org/wiki/ISO/IEC_8859-1
+
+ISO/IEC 8859-1:1998, Information technology - 8-bit single-byte coded graphic
+character sets - Part 1: Latin alphabet No. 1, is part of the ISO/IEC 8859 series
+of ASCII-based standard character encodings, first edition published in 1987.
+It is informally referred to as Latin-1. It is generally intended for
+"Western European" languages (see below for a list).
+
+ISO-8859-1 is the IANA preferred charset name for this standard when supplemented
+with the control codes from ISO/IEC 6429 for the C0 (0x00-0x1F) and C1 (0x80-0x9F)
+parts. Escape sequences (from ISO/IEC 6429 or ISO/IEC 2022) are not to be interpreted.
+The Windows-1252 codepage coincides with ISO-8859-1 in the code ranges 0x00 to 0x7F
+and 0xA0 to 0xFF, but not for the range 0x80 to 0x9F.
+
+
+* ALGORITHM #1
+
+ When the character is taken out of the octet string, it is necessary to
+distinguish a single octet character and the multiple octet character.
+The distinction is done only by first octet.
+
+    Single octet code is:
+      0x00-0xFF
+
+See also code table:
+
+         Single octet code
+
+   0 1 2 3 4 5 6 7 8 9 A B C D E F 
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 0|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*| 0x00-0xFF
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 1|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 2|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 3|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 4|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 5|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 6|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 7|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 8|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 9|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ A|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ B|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ C|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ D|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ E|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ F|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+
+* ALGORITHM #2
+
+Against algorithm.1, when the range of the character by tr/// is specified, only the
+following character codes are effective.
+
+    Single octet code is:
+      0x00-0xFF
+
+See also code table:
+
+         Single octet code
+
+   0 1 2 3 4 5 6 7 8 9 A B C D E F 
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 0|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*| 0x00-0xFF
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 1|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 2|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 3|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 4|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 5|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 6|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 7|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 8|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 9|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ A|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ B|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ C|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ D|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ E|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ F|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|*|
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+
+SEE ALSO
+
+perl, Sjis.pm
+
