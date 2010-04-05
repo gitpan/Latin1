@@ -18,7 +18,7 @@ use 5.00503;
 
 BEGIN { eval q{ use vars qw($VERSION $_warning) } }
 
-$VERSION = sprintf '%d.%02d', q$Revision: 0.53 $ =~ m/(\d+)/xmsg;
+$VERSION = sprintf '%d.%02d', q$Revision: 0.54 $ =~ m/(\d+)/xmsg;
 
 # poor Symbol.pm - substitute of real Symbol.pm
 BEGIN {
@@ -123,6 +123,10 @@ sub Elatin1::tr($$$$;$);
 sub Elatin1::chop(@);
 sub Elatin1::index($$;$);
 sub Elatin1::rindex($$;$);
+sub Elatin1::lc(@);
+sub Elatin1::lc_();
+sub Elatin1::uc(@);
+sub Elatin1::uc_();
 sub Elatin1::capture($);
 sub Elatin1::chr(;$);
 sub Elatin1::chr_();
@@ -503,6 +507,140 @@ sub Elatin1::rindex($$;$) {
         }
     }
     return $rindex;
+}
+
+#
+# Latin-1 lower case
+#
+{
+    # P.132 4.8.2. Lexically Scoped Variables: my
+    # in Chapter 4: Statements and Declarations
+    # of ISBN 0-596-00027-8 Programming Perl Third Edition.
+    # (and so on)
+
+    my %lc = ();
+    @lc{qw(A B C D E F G H I J K L M N O P Q R S T U V W X Y Z)} =
+        qw(a b c d e f g h i j k l m n o p q r s t u v w x y z);
+
+    # ISO/IEC 8859-1 Latin-1 CAPITAL => SMALL
+
+    # http://anubis.dkuug.dk/JTC1/SC2/WG3/docs/n411.pdf
+    # (and so on)
+
+    if (__PACKAGE__ eq 'Elatin1') {
+        %lc = (%lc,
+            "\xC0" => "\xE0", # LATIN LETTER A WITH GRAVE
+            "\xC1" => "\xE1", # LATIN LETTER A WITH ACUTE
+            "\xC2" => "\xE2", # LATIN LETTER A WITH CIRCUMFLEX
+            "\xC3" => "\xE3", # LATIN LETTER A WITH TILDE
+            "\xC4" => "\xE4", # LATIN LETTER A WITH DIAERESIS
+            "\xC5" => "\xE5", # LATIN LETTER A WITH RING ABOVE
+            "\xC6" => "\xE6", # LATIN LETTER AE
+            "\xC7" => "\xE7", # LATIN LETTER C WITH CEDILLA
+            "\xC8" => "\xE8", # LATIN LETTER E WITH GRAVE
+            "\xC9" => "\xE9", # LATIN LETTER E WITH ACUTE
+            "\xCA" => "\xEA", # LATIN LETTER E WITH CIRCUMFLEX
+            "\xCB" => "\xEB", # LATIN LETTER E WITH DIAERESIS
+            "\xCC" => "\xEC", # LATIN LETTER I WITH GRAVE
+            "\xCD" => "\xED", # LATIN LETTER I WITH ACUTE
+            "\xCE" => "\xEE", # LATIN LETTER I WITH CIRCUMFLEX
+            "\xCF" => "\xEF", # LATIN LETTER I WITH DIAERESIS
+            "\xD0" => "\xF0", # LATIN LETTER ETH (Icelandic)
+            "\xD1" => "\xF1", # LATIN LETTER N WITH TILDE
+            "\xD2" => "\xF2", # LATIN LETTER O WITH GRAVE
+            "\xD3" => "\xF3", # LATIN LETTER O WITH ACUTE
+            "\xD4" => "\xF4", # LATIN LETTER O WITH CIRCUMFLEX
+            "\xD5" => "\xF5", # LATIN LETTER O WITH TILDE
+            "\xD6" => "\xF6", # LATIN LETTER O WITH DIAERESIS
+            "\xD8" => "\xF8", # LATIN LETTER O WITH STROKE
+            "\xD9" => "\xF9", # LATIN LETTER U WITH GRAVE
+            "\xDA" => "\xFA", # LATIN LETTER U WITH ACUTE
+            "\xDB" => "\xFB", # LATIN LETTER U WITH CIRCUMFLEX
+            "\xDC" => "\xFC", # LATIN LETTER U WITH DIAERESIS
+            "\xDD" => "\xFD", # LATIN LETTER Y WITH ACUTE
+            "\xDE" => "\xFE", # LATIN LETTER THORN (Icelandic)
+        );
+    }
+
+    # lower case with parameter
+    sub Elatin1::lc(@) {
+        if (@_) {
+            my $s = shift @_;
+            return join('', map {defined($lc{$_}) ? $lc{$_} : $_} ($s =~ m/\G ($q_char) /oxmsg)), @_;
+        }
+        else {
+            return Elatin1::lc_();
+        }
+    }
+
+    # lower case without parameter
+    sub Elatin1::lc_() {
+        my $s = $_;
+        return join '', map {defined($lc{$_}) ? $lc{$_} : $_} ($s =~ m/\G ($q_char) /oxmsg);
+    }
+}
+
+#
+# Latin-1 upper case
+#
+{
+    my %uc = ();
+    @uc{qw(a b c d e f g h i j k l m n o p q r s t u v w x y z)} =
+        qw(A B C D E F G H I J K L M N O P Q R S T U V W X Y Z);
+
+    # ISO/IEC 8859-1 Latin-1 SMALL => CAPITAL
+
+    if (__PACKAGE__ eq 'Elatin1') {
+        %uc = (%uc,
+            "\xE0" => "\xC0", # LATIN LETTER A WITH GRAVE
+            "\xE1" => "\xC1", # LATIN LETTER A WITH ACUTE
+            "\xE2" => "\xC2", # LATIN LETTER A WITH CIRCUMFLEX
+            "\xE3" => "\xC3", # LATIN LETTER A WITH TILDE
+            "\xE4" => "\xC4", # LATIN LETTER A WITH DIAERESIS
+            "\xE5" => "\xC5", # LATIN LETTER A WITH RING ABOVE
+            "\xE6" => "\xC6", # LATIN LETTER AE
+            "\xE7" => "\xC7", # LATIN LETTER C WITH CEDILLA
+            "\xE8" => "\xC8", # LATIN LETTER E WITH GRAVE
+            "\xE9" => "\xC9", # LATIN LETTER E WITH ACUTE
+            "\xEA" => "\xCA", # LATIN LETTER E WITH CIRCUMFLEX
+            "\xEB" => "\xCB", # LATIN LETTER E WITH DIAERESIS
+            "\xEC" => "\xCC", # LATIN LETTER I WITH GRAVE
+            "\xED" => "\xCD", # LATIN LETTER I WITH ACUTE
+            "\xEE" => "\xCE", # LATIN LETTER I WITH CIRCUMFLEX
+            "\xEF" => "\xCF", # LATIN LETTER I WITH DIAERESIS
+            "\xF0" => "\xD0", # LATIN LETTER ETH (Icelandic)
+            "\xF1" => "\xD1", # LATIN LETTER N WITH TILDE
+            "\xF2" => "\xD2", # LATIN LETTER O WITH GRAVE
+            "\xF3" => "\xD3", # LATIN LETTER O WITH ACUTE
+            "\xF4" => "\xD4", # LATIN LETTER O WITH CIRCUMFLEX
+            "\xF5" => "\xD5", # LATIN LETTER O WITH TILDE
+            "\xF6" => "\xD6", # LATIN LETTER O WITH DIAERESIS
+            "\xF8" => "\xD8", # LATIN LETTER O WITH STROKE
+            "\xF9" => "\xD9", # LATIN LETTER U WITH GRAVE
+            "\xFA" => "\xDA", # LATIN LETTER U WITH ACUTE
+            "\xFB" => "\xDB", # LATIN LETTER U WITH CIRCUMFLEX
+            "\xFC" => "\xDC", # LATIN LETTER U WITH DIAERESIS
+            "\xFD" => "\xDD", # LATIN LETTER Y WITH ACUTE
+            "\xFE" => "\xDE", # LATIN LETTER THORN (Icelandic)
+        );
+    }
+
+    # upper case with parameter
+    sub Elatin1::uc(@) {
+        if (@_) {
+            my $s = shift @_;
+            return join('', map {defined($uc{$_}) ? $uc{$_} : $_} ($s =~ m/\G ($q_char) /oxmsg)), @_;
+        }
+        else {
+            return Elatin1::uc_();
+        }
+    }
+
+    # upper case without parameter
+    sub Elatin1::uc_() {
+        my $s = $_;
+        return join '', map {defined($uc{$_}) ? $uc{$_} : $_} ($s =~ m/\G ($q_char) /oxmsg);
+    }
 }
 
 #
@@ -1473,6 +1611,10 @@ Elatin1 - Run-time routines for Latin1.pm
     Elatin1::chop(...);
     Elatin1::index(...);
     Elatin1::rindex(...);
+    Elatin1::lc(...);
+    Elatin1::lc_;
+    Elatin1::uc(...);
+    Elatin1::uc_;
     Elatin1::capture(...);
     Elatin1::chr(...);
     Elatin1::chr_;
@@ -1595,6 +1737,23 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   occurence of $substr in Latin-1 $string (a reverse index). The function returns
   -1 if not found. $position, if specified, is the rightmost position that may be
   returned, i.e., how far in the Latin-1 string the function can search.
+
+=item Lower case string
+
+  $lc = Elatin1::lc($string);
+  $lc = Elatin1::lc_;
+
+  Returns a lowercase version of Latin-1 string (or $_, if omitted). This is the
+  internal function implementing the \L escape in double-quoted strings.
+
+=item Upper case string
+
+  $uc = Elatin1::uc($string);
+  $uc = Elatin1::uc_;
+
+  Returns an uppercased version of Latin-1 string (or $_, if string is omitted).
+  This is the internal function implementing the \U escape in double-quoted
+  strings.
 
 =item Make capture number
 

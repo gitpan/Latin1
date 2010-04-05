@@ -19,7 +19,7 @@ use Elatin1;
 
 BEGIN { eval q{ use vars qw($VERSION) } }
 
-$VERSION = sprintf '%d.%02d', q$Revision: 0.53 $ =~ m/(\d+)/oxmsg;
+$VERSION = sprintf '%d.%02d', q$Revision: 0.54 $ =~ m/(\d+)/oxmsg;
 
 # poor Symbol.pm - substitute of real Symbol.pm
 BEGIN {
@@ -3768,6 +3768,10 @@ A part of function in the script is written and changes by this software.
 
 =item * pos
 
+=item * lc --> Elatin1::lc or Elatin1::lc_
+
+=item * uc --> Elatin1::uc or Elatin1::uc_
+
 =item * ord (when no import)
 
 =item * reverse (when no import)
@@ -3867,11 +3871,11 @@ It means not compatible with JPerl.
 
   To find the length of a string in bytes rather than characters, say:
 
-  $blen = length $string;
+  $blen = length($string);
 
   or
 
-  $blen = CORE::length $string;
+  $blen = CORE::length($string);
 
 =item substr by Latin-1 character
 
@@ -3968,14 +3972,11 @@ Please patches and report problems to author are welcome.
 
 =over 2
 
-=item * format
-
-Function "format" can't handle multiple octet code same as original Perl.
-
 =item * /o modifier of m/$re/o, s/$re/foo/o and qr/$re/o
 
 /o modifier doesn't do operation the same as the expectation on perl5.6.1.
-The latest value of variable $re is used as a regular expression.
+The latest value of variable $re is used as a regular expression. This will not
+actually become a problem. Because when you use /o, you are sure not to change $re.
 
 =back
 
@@ -4219,7 +4220,7 @@ programming environment like at that time.
  Pages: 172
  T1008901080816 ZASSHI 08901-8
  http://ascii.asciimw.jp/books/magazines/unix.shtml
- 
+
  Yet Another JPerl family
  http://search.cpan.org/dist/Big5Plus/
  http://search.cpan.org/dist/EUCJP/
@@ -4227,9 +4228,14 @@ programming environment like at that time.
  http://search.cpan.org/dist/HP15/
  http://search.cpan.org/dist/INFORMIXV6ALS/
  http://search.cpan.org/dist/Latin1/
+ http://search.cpan.org/dist/OldUTF8/
+ http://search.cpan.org/dist/Latin1/
  http://search.cpan.org/dist/UHC/
  http://search.cpan.org/dist/UTF2/
+
+ Other Tools
  http://search.cpan.org/dist/jacode/
+ http://search.cpan.org/dist/Char/
 
 =head1 ACKNOWLEDGEMENTS
 
