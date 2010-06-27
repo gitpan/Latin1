@@ -19,7 +19,7 @@ use Elatin1;
 
 BEGIN { eval q{ use vars qw($VERSION $_warning) } }
 
-$VERSION = sprintf '%d.%02d', q$Revision: 0.59 $ =~ m/(\d+)/oxmsg;
+$VERSION = sprintf '%d.%02d', q$Revision: 0.60 $ =~ m/(\d+)/oxmsg;
 
 # poor Symbol.pm - substitute of real Symbol.pm
 BEGIN {
@@ -2161,6 +2161,19 @@ sub e_qq {
         if (0) {
         }
 
+        elsif ($char[$i] eq '\Q') {
+            while (1) {
+                if (++$i > $#char) {
+                    last;
+                }
+                if ($char[$i] eq '\E') {
+                    last;
+                }
+            }
+        }
+        elsif ($char[$i] eq '\E') {
+        }
+
         # $0 --> $0
         elsif ($char[$i] =~ m/\A \$ 0 \z/oxms) {
         }
@@ -2276,6 +2289,19 @@ sub e_heredoc {
 
     for (my $i=0; $i <= $#char; $i++) {
         if (0) {
+        }
+
+        elsif ($char[$i] eq '\Q') {
+            while (1) {
+                if (++$i > $#char) {
+                    last;
+                }
+                if ($char[$i] eq '\E') {
+                    last;
+                }
+            }
+        }
+        elsif ($char[$i] eq '\E') {
         }
 
         # $0 --> $0
@@ -2463,6 +2489,19 @@ sub e_qr {
 
         # /i modifier
         elsif ($char[$i] =~ m/\A [A-Za-z] \z/oxms) {
+        }
+
+        elsif ($char[$i] eq '\Q') {
+            while (1) {
+                if (++$i > $#char) {
+                    last;
+                }
+                if ($char[$i] eq '\E') {
+                    last;
+                }
+            }
+        }
+        elsif ($char[$i] eq '\E') {
         }
 
         # $0 --> $0
@@ -2759,6 +2798,19 @@ sub e_s1 {
 
         # /i modifier
         elsif ($char[$i] =~ m/\A [A-Za-z] \z/oxms) {
+        }
+
+        elsif ($char[$i] eq '\Q') {
+            while (1) {
+                if (++$i > $#char) {
+                    last;
+                }
+                if ($char[$i] eq '\E') {
+                    last;
+                }
+            }
+        }
+        elsif ($char[$i] eq '\E') {
         }
 
         # \0 --> \0
@@ -3061,9 +3113,11 @@ sub e_sub {
     my $sub;
     if ($modifier =~ m/g/oxms) {
 
+        my $prematch = q{1};
+
         $sub = sprintf(
-            #      1  2       3  4              5 6 7   8  9         10  1112  13      14           15          16      17     18          19       20    21      22
-            q<eval{%s %s_n=0; %s %s_a=''; while(%s%s%s){%s %s_r=eval %s; %s%s="%s_a${1}%s_r$'"; pos(%s)=length "%s_a${1}%s_r"; %s_a=substr(%s,0,pos(%s)); %s_n++} %s_n}>,
+            #      1  2       3  4              5 6 7   8  9         10  1112  13    14 15           16          17    18 19     20          21       22    23      24
+            q<eval{%s %s_n=0; %s %s_a=''; while(%s%s%s){%s %s_r=eval %s; %s%s="%s_a${%s}%s_r$'"; pos(%s)=length "%s_a${%s}%s_r"; %s_a=substr(%s,0,pos(%s)); %s_n++} %s_n}>,
 
             $local,                                                                       #  1
                 $variable_basename,                                                       #  2
@@ -3080,35 +3134,41 @@ sub e_sub {
             sprintf('%s_r=eval %s_r; ', $variable_basename, $variable_basename) x $e_modifier, # 11
             $variable,                                                                    # 12
                 $variable_basename,                                                       # 13
-                $variable_basename,                                                       # 14
-            $variable,                                                                    # 15
-                $variable_basename,                                                       # 16
+            $prematch,                                                                    # 14
+                $variable_basename,                                                       # 15
+            $variable,                                                                    # 16
                 $variable_basename,                                                       # 17
-                $variable_basename,                                                       # 18
-            $variable,                                                                    # 19
-            $variable,                                                                    # 20
-                $variable_basename,                                                       # 21
-                $variable_basename,                                                       # 22
+            $prematch,                                                                    # 18
+                $variable_basename,                                                       # 19
+                $variable_basename,                                                       # 20
+            $variable,                                                                    # 21
+            $variable,                                                                    # 22
+                $variable_basename,                                                       # 23
+                $variable_basename,                                                       # 24
         );
     }
 
     # s///
     else {
-        $sub = sprintf(
-            #  1 2 3          4  5         6   7 8       9
-            q<(%s%s%s) ? eval{%s %s_r=eval %s; %s%s="${1}%s_r$'"; 1 } : ''>,
 
-            $variable,                                                                    # 1
-            $bind_operator,                                                               # 2
-            ($delimiter1 eq "'") ?                                                        # 3
-            e_s1_q('m', $delimiter1, $end_delimiter1, $pattern, $modifier) :              # :
-            e_s1  ('m', $delimiter1, $end_delimiter1, $pattern, $modifier),               # :
-            $local,                                                                       # 4
-                $variable_basename,                                                       # 5
-            $e_replacement,                                                               # 6
-            sprintf('%s_r=eval %s_r; ', $variable_basename, $variable_basename) x $e_modifier, # 7
-            $variable,                                                                    # 8
-                $variable_basename,                                                       # 9
+        my $prematch = q{`};
+
+        $sub = sprintf(
+            #  1 2 3          4  5         6   7 8     9  10
+            q<(%s%s%s) ? eval{%s %s_r=eval %s; %s%s="${%s}%s_r$'"; 1 } : ''>,
+
+            $variable,                                                                    #  1
+            $bind_operator,                                                               #  2
+            ($delimiter1 eq "'") ?                                                        #  3
+            e_s1_q('m', $delimiter1, $end_delimiter1, $pattern, $modifier) :              #  :
+            e_s1  ('m', $delimiter1, $end_delimiter1, $pattern, $modifier),               #  :
+            $local,                                                                       #  4
+                $variable_basename,                                                       #  5
+            $e_replacement,                                                               #  6
+            sprintf('%s_r=eval %s_r; ', $variable_basename, $variable_basename) x $e_modifier, #  7
+            $variable,                                                                    #  8
+            $prematch,                                                                    #  9
+                $variable_basename,                                                       # 10
         );
     }
 
@@ -3234,6 +3294,19 @@ sub e_split {
 
         # /i modifier
         elsif ($char[$i] =~ m/\A ([A-Za-z]) \z/oxms) {
+        }
+
+        elsif ($char[$i] eq '\Q') {
+            while (1) {
+                if (++$i > $#char) {
+                    last;
+                }
+                if ($char[$i] eq '\E') {
+                    last;
+                }
+            }
+        }
+        elsif ($char[$i] eq '\E') {
         }
 
         # $0 --> $0
@@ -3406,8 +3479,6 @@ Latin1 - "Yet Another JPerl" Source code filter to escape Latin-1
 
   use Latin1;
   use Latin1 version;         --- require version
-  use Latin1 qw(ord reverse); --- demand enhanced feature of ord and reverse
-  use Latin1 version qw(ord reverse);
 
   # "no Latin1;" not supported
 
@@ -3417,14 +3488,6 @@ Latin1 - "Yet Another JPerl" Source code filter to escape Latin-1
 
   Latin-1_script.pl  --- script written in Latin-1
   Escaped_script.pl.e --- escaped script
-
-  functions:
-    Latin1::ord(...);
-    Latin1::reverse(...);
-    Latin1::length(...);
-    Latin1::substr(...);
-    Latin1::index(...);
-    Latin1::rindex(...);
 
 =head1 ABSTRACT
 
@@ -3550,50 +3613,6 @@ You need write 'use Latin1;' in your script.
   use utf8;   use Latin1;
   ---------------------------------
 
-=head1 Escaping Multiple Octet Code (Latin1 software provides)
-
-Insert chr(0x5c) before  @  [  \  ]  ^  `  {  |  and  }  in multiple octet of
-
-=over 2
-
-=item * string in single quote ('', q{}, <<'END' and qw{})
-
-=item * string in double quote ("", qq{}, <<END, <<"END", ``, qx{} and <<`END`)
-
-=item * regexp in single quote (m'', s''', split(''), split(m'') and qr'')
-
-=item * regexp in double quote (//, m//, ??, s///, split(//), split(m//) and qr//)
-
-=item * character in tr/// (tr/// and y///)
-
-=back
-
-  ex. Japanese Katakana "SO" like [ `/ ] code is "\x83\x5C"
- 
-                  see     hex dump
-  -----------------------------------------
-  source script   "`/"    [83 5c]
-  -----------------------------------------
- 
-  Here, use Latin1;
-                          hex dump
-  -----------------------------------------
-  escaped script  "`\/"   [83 [5c] 5c]
-  -----------------------------------------
-                    ^--- escape by Latin1 software
- 
-  by the by       see     hex dump
-  -----------------------------------------
-  your eye's      "`/\"   [83 5c] [5c]
-  -----------------------------------------
-  perl eye's      "`\/"   [83] \[5c]
-  -----------------------------------------
- 
-                          hex dump
-  -----------------------------------------
-  in the perl     "`/"    [83] [5c]
-  -----------------------------------------
-
 =head1 Escaping Character Classes (Latin1 software provides)
 
 The character classes are redefined as follows to backward compatibility.
@@ -3623,19 +3642,6 @@ functions.
   ---------------------------------
   Before      After
   ---------------------------------
-  length      length
-  substr      substr
-  pos         pos
-  split       Elatin1::split
-  tr///       Elatin1::tr
-  tr///b      tr///
-  tr///B      tr///
-  y///        Elatin1::tr
-  y///b       tr///
-  y///B       tr///
-  chop        Elatin1::chop
-  index       Elatin1::index
-  rindex      Elatin1::rindex
   lc          Elatin1::lc
   uc          Elatin1::uc
   chr         Elatin1::chr
@@ -3653,22 +3659,6 @@ functions.
   no Perl::Module ();      BEGIN { require 'Perl/Module.pm'; }
   ------------------------------------------------------------------------------------------------------------------------
 
-=head1 Escaping Function Name (You do)
-
-You need write 'Latin1::' at head of function name when you want character
-oriented function. See 'CHARACTER ORIENTED FUNCTIONS'.
-
-  ---------------------------------
-  Before      After
-  ---------------------------------
-  ord         Latin1::ord
-  reverse     Latin1::reverse
-  length      Latin1::length
-  substr      Latin1::substr
-  index       Latin1::index
-  rindex      Latin1::rindex
-  ---------------------------------
-
 =head1 Escaping Built-in Standard Module (Latin1 software provides)
 
 Elatin1.pm does "BEGIN { unshift @INC, '/Perl/site/lib/Latin1' }" at head.
@@ -3681,132 +3671,6 @@ You need copy built-in standard module to /Perl/site/lib/Latin1 and change
 'use utf8;' to 'use Latin1;' in its. You need help yourself for now.
 
 Back to and see 'Escaping Your Script'. Enjoy hacking!!
-
-=head1 CHARACTER ORIENTED FUNCTIONS
-
-=over 2
-
-=item Order of Character
-
-  $ord = Latin1::ord($string);
-
-  This function returns the numeric value (ASCII or Latin-1) of the first character
-  of $string. The return value is always unsigned.
-
-=item Reverse list or string
-
-  @reverse = Latin1::reverse(@list);
-  $reverse = Latin1::reverse(@list);
-
-  In list context, this function returns a list value consisting of the elements of
-  @list in the opposite order. The function can be used to create descending
-  sequences:
-
-  for (Latin1::reverse(1 .. 10)) { ... }
-
-  Because of the way hashes flatten into lists when passed as a @list, reverse can
-  also be used to invert a hash, presuming the values are unique:
-
-  %barfoo = Latin1::reverse(%foobar);
-
-  In scalar context, the function concatenates all the elements of LIST and then
-  returns the reverse of that resulting string, character by character.
-
-=item length by Latin-1 character
-
-  $length = Latin1::length($string);
-  $length = Latin1::length();
-
-  This function returns the length in characters of the scalar value $string. If
-  $string is omitted, it returns the Latin1::length of $_.
-
-  Do not try to use length to find the size of an array or hash. Use scalar @array
-  for the size of an array, and scalar keys %hash for the number of key/value pairs
-  in a hash. (The scalar is typically omitted when redundant.)
-
-  To find the length of a string in bytes rather than characters, say:
-
-  $blen = length($string);
-
-  or
-
-  $blen = CORE::length($string);
-
-=item substr by Latin-1 character
-
-  $substr = Latin1::substr($string,$offset,$length,$replacement);
-  $substr = Latin1::substr($string,$offset,$length);
-  $substr = Latin1::substr($string,$offset);
-
-  This function extracts a substring out of the string given by $string and returns
-  it. The substring is extracted starting at $offset characters from the front of
-  the string.
-  If $offset is negative, the substring starts that far from the end of the string
-  instead. If $length is omitted, everything to the end of the string is returned.
-  If $length is negative, the length is calculated to leave that many characters off
-  the end of the string. Otherwise, $length indicates the length of the substring to
-  extract, which is sort of what you'd expect.
-
-  An alternative to using Latin1::substr as an lvalue is to specify the $replacement
-  string as the fourth argument. This allows you to replace parts of the $string and
-  return what was there before in one operation, just as you can with splice. The next
-  example also replaces the last character of $var with "Curly" and puts that replaced
-  character into $oldstr: 
-
-  $oldstr = Latin1::substr($var, -1, 1, "Curly");
-
-  If you assign something shorter than the length of your substring, the string will
-  shrink, and if you assign something longer than the length, the string will grow to
-  accommodate it. To keep the string the same length, you may need to pad or chop your
-  value using sprintf or the x operator. If you attempt to assign to an unallocated
-  area past the end of the string, Latin1::substr raises an exception.
-
-  To prepend the string "Larry" to the current value of $_, use:
-
-  Latin1::substr($var, 0, 0, "Larry");
-
-  To instead replace the first character of $_ with "Moe", use:
-
-  Latin1::substr($var, 0, 1, "Moe");
-
-  And finally, to replace the last character of $var with "Curly", use:
-
-  Latin1::substr($var, -1, 1, "Curly");
-
-=item index by Latin-1 character
-
-  $index = Latin1::index($string,$substring,$offset);
-  $index = Latin1::index($string,$substring);
-
-  This function searches for one string within another. It returns the position of
-  the first occurrence of $substring in $string. The $offset, if specified, says how
-  many characters from the start to skip before beginning to look. Positions are
-  based at 0. If the substring is not found, the function returns one less than the
-  base, ordinarily -1. To work your way through a string, you might say:
-
-  $pos = -1;
-  while (($pos = Latin1::index($string, $lookfor, $pos)) > -1) {
-      print "Found at $pos\n";
-      $pos++;
-  }
-
-=item rindex by Latin-1 character
-
-  $rindex = Latin1::rindex($string,$substring,$position);
-  $rindex = Latin1::rindex($string,$substring);
-
-  This function works just like Latin1::index except that it returns the position of
-  the last occurrence of $substring in $string (a reverse index). The function
-  returns -1 if not $substring is found. $position, if specified, is the rightmost
-  position that may be returned. To work your way through a string backward, say:
-
-  $pos = Latin1::length($string);
-  while (($pos = Latin1::rindex($string, $lookfor, $pos)) >= 0) {
-      print "Found at $pos\n";
-      $pos--;
-  }
-
-=back
 
 =head1 ENVIRONMENT VARIABLE
 
@@ -3832,47 +3696,6 @@ Please patches and report problems to author are welcome.
 /o modifier doesn't do operation the same as the expectation on perl5.6.1.
 The latest value of variable $re is used as a regular expression. This will not
 actually become a problem. Because when you use /o, you are sure not to change $re.
-
-=item * Latin1::substr as lvalue
-
-Latin1::substr differs from CORE::substr, and cannot be used as a lvalue.
-To change part of a string, you can use the optional fourth argument which is the
-replacement string.
-
-Latin1::substr($string, 13, 4, "JPerl");
-
-=item * Special variables $` and $& doesn't function
-
-  Because ...
-
-  Script
-    'AAABBBCCC' =~ /BBB/;
-
-  is escaped to
-    'AAABBBCCC' =~ /\G(?:[\x00-\xFF])*?(?:BBB)@Elatin1::m_matched/;
-
-  For multibyte anchoring,
-    <\G(?:[\x00-\xFF])*?> is added.
-
-  Result
-    $' = ''       (expect 'AAA')
-    $& = 'AAABBB' (expect 'BBB')
-    $` = 'CCC'
-
-  Solution ...
-
-  Script
-    'AAABBBCCC' =~ /(BBB)/;
-
-  Enclose the entire regular expression with ( ... ) for capturing.
-
-  is escaped to
-    'AAABBBCCC' =~ /\G(?:[\x00-\xFF])*?(?:(BBB))@Elatin1::m_matched/;
-
-  Result
-    $1 = 'BBB'
-
-  $1 does function instead of $&.
 
 =back
 
@@ -4124,6 +3947,7 @@ programming environment like at that time.
  http://ascii.asciimw.jp/books/magazines/unix.shtml
 
  Yet Another JPerl family
+ http://search.cpan.org/dist/Big5HKSCS/
  http://search.cpan.org/dist/Big5Plus/
  http://search.cpan.org/dist/EUCJP/
  http://search.cpan.org/dist/GB18030/
@@ -4191,6 +4015,7 @@ I am thankful to all persons.
  http://search.cpan.org/dist/Pod-PerldocJp/
  http://gihyo.jp/dev/serial/01/modern-perl/0031
  http://gihyo.jp/dev/serial/01/modern-perl/0032
+ http://gihyo.jp/dev/serial/01/modern-perl/0033
 
  Dan Kogai, Encode module
  http://search.cpan.org/dist/Encode/

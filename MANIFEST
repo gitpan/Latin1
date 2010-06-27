@@ -1,5 +1,5 @@
-lib/Latin1.pm
-lib/Elatin1.pm
+Latin1.pm
+Elatin1.pm
 perl58.bat
 perl510.bat
 perl512.bat
