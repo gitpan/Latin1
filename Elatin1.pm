@@ -23,7 +23,7 @@ BEGIN {
 
 BEGIN { eval q{ use vars qw($VERSION $_warning) } }
 
-$VERSION = sprintf '%d.%02d', q$Revision: 0.60 $ =~ m/(\d+)/xmsg;
+$VERSION = sprintf '%d.%02d', q$Revision: 0.62 $ =~ m/(\d+)/xmsg;
 
 # poor Symbol.pm - substitute of real Symbol.pm
 BEGIN {
@@ -608,43 +608,9 @@ sub Elatin1::rindex($$;$) {
 # Latin-1 regexp capture
 #
 {
-###if MULTIBYTE_ANCHORING
-    # 10.3. Creating Persistent Private Variables
-    # in Chapter 10. Subroutines
-    # of ISBN 0-596-00313-7 Perl Cookbook, 2nd Edition.
-
-    my $last_s_matched = 0;
-
-###endif
     sub Elatin1::capture($) {
-###if MULTIBYTE_ANCHORING
-        if ($last_s_matched and ($_[0] =~ m/\A [1-9][0-9]* \z/oxms)) {
-            return $_[0] + 1;
-        }
-###endif
         return $_[0];
     }
-###if MULTIBYTE_ANCHORING
-
-    # Latin-1 regexp mark last m// or qr// matched
-    sub Elatin1::m_matched() {
-        $last_s_matched = 0;
-    }
-
-    # Latin-1 regexp mark last s/// or qr matched
-    sub Elatin1::s_matched() {
-        $last_s_matched = 1;
-    }
-
-    # which matched of m// or s/// at last
-
-    # P.854 31.17. use re
-    # in Chapter 31. Pragmatic Modules
-    # of ISBN 0-596-00027-8 Programming Perl Third Edition.
-
-    @Elatin1::m_matched = (qr/(?{Elatin1::m_matched})/);
-    @Elatin1::s_matched = (qr/(?{Elatin1::s_matched})/);
-###endif
 }
 
 #

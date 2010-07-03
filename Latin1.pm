@@ -19,7 +19,7 @@ use Elatin1;
 
 BEGIN { eval q{ use vars qw($VERSION $_warning) } }
 
-$VERSION = sprintf '%d.%02d', q$Revision: 0.60 $ =~ m/(\d+)/oxmsg;
+$VERSION = sprintf '%d.%02d', q$Revision: 0.62 $ =~ m/(\d+)/oxmsg;
 
 # poor Symbol.pm - substitute of real Symbol.pm
 BEGIN {
@@ -2047,6 +2047,18 @@ sub classic_character_class {
         '\h' => '[\x09\x20]',
         '\v' => '[\x0C\x0A\x0D]',
 
+        # \b \B
+        #
+        # P.131 Word boundaries: \b, \B, \<, \>, ...
+        # in Chapter 3: Overview of Regular Expression Features and Flavors
+        # of ISBN 0-596-00289-0 Mastering Regular Expressions, Second edition
+
+        # '\b' => '(?:(?<=\A|\W)(?=\w)|(?<=\w)(?=\W|\z))',
+        '\b' => '(?:\A(?=[0-9A-Z_a-z])|(?<=[\x00-\x2F\x40\x5B-\x5E\x60\x7B-\xFF])(?=[0-9A-Z_a-z])|(?<=[0-9A-Z_a-z])(?=[\x00-\x2F\x40\x5B-\x5E\x60\x7B-\xFF]|\z))',
+
+        # '\B' => '(?:(?<=\w)(?=\w)|(?<=\W)(?=\W))',
+        '\B' => '(?:(?<=[0-9A-Z_a-z])(?=[0-9A-Z_a-z])|(?<=[\x00-\x2F\x40\x5B-\x5E\x60\x7B-\xFF])(?=[\x00-\x2F\x40\x5B-\x5E\x60\x7B-\xFF]))',
+
     }->{$char};
 }
 
@@ -3632,6 +3644,15 @@ The character classes are redefined as follows to backward compatibility.
   \v          [\x0C\x0A\x0D]
   \H          (?:[^\x09\x20])
   \V          (?:[^\x0C\x0A\x0D])
+  ---------------------------------------------------------------------------
+
+Also \b and \B are redefined as follows to backward compatibility.
+
+  ---------------------------------------------------------------------------
+  Before      After
+  ---------------------------------------------------------------------------
+  \b          (?:\A(?=[0-9A-Z_a-z])|(?<=[\x00-\x2F\x40\x5B-\x5E\x60\x7B-\xFF])(?=[0-9A-Z_a-z])|(?<=[0-9A-Z_a-z])(?=[\x00-\x2F\x40\x5B-\x5E\x60\x7B-\xFF]|\z))
+  \B          (?:(?<=[0-9A-Z_a-z])(?=[0-9A-Z_a-z])|(?<=[\x00-\x2F\x40\x5B-\x5E\x60\x7B-\xFF])(?=[\x00-\x2F\x40\x5B-\x5E\x60\x7B-\xFF]))
   ---------------------------------------------------------------------------
 
 =head1 Escaping Built-in Functions (Latin1 software provides)
