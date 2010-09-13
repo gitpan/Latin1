@@ -1,6 +1,6 @@
 NAME
 
-       Latin1 - "Yet Another JPerl" Source code filter for Latin-1 script
+       Latin1 - Source code filter for Latin-1 script
 
 SYNOPSIS
 
@@ -18,7 +18,7 @@ SYNOPSIS
 
 DESCRIPTION
 
-      This software is "Yet Another JPerl" written by Perl.
+      This software is "JPerl on the Modern Perl" written by Perl.
 
       To our regret, the Sjis software family cannot treat Latin-1 up to now.
       This software can supplement those weak points. We can write the script

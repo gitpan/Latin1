@@ -23,7 +23,7 @@ BEGIN {
 
 BEGIN { eval q{ use vars qw($VERSION $_warning) } }
 
-$VERSION = sprintf '%d.%02d', q$Revision: 0.63 $ =~ m/(\d+)/xmsg;
+$VERSION = sprintf '%d.%02d', q$Revision: 0.64 $ =~ m/(\d+)/xmsg;
 
 # poor Symbol.pm - substitute of real Symbol.pm
 BEGIN {
@@ -128,8 +128,12 @@ sub Elatin1::tr($$$$;$);
 sub Elatin1::chop(@);
 sub Elatin1::index($$;$);
 sub Elatin1::rindex($$;$);
+sub Elatin1::lcfirst(@);
+sub Elatin1::lcfirst_();
 sub Elatin1::lc(@);
 sub Elatin1::lc_();
+sub Elatin1::ucfirst(@);
+sub Elatin1::ucfirst_();
 sub Elatin1::uc(@);
 sub Elatin1::uc_();
 sub Elatin1::capture($);
@@ -513,6 +517,27 @@ sub Elatin1::rindex($$;$) {
         );
     }
 
+    # lower case first with parameter
+    sub Elatin1::lcfirst(@) {
+        if (@_) {
+            my $s = shift @_;
+            if (@_ and wantarray) {
+                return Elatin1::lc(CORE::substr($s,0,1)) . CORE::substr($s,1), @_;
+            }
+            else {
+                return Elatin1::lc(CORE::substr($s,0,1)) . CORE::substr($s,1);
+            }
+        }
+        else {
+            return Elatin1::lc(CORE::substr($_,0,1)) . CORE::substr($_,1);
+        }
+    }
+
+    # lower case first without parameter
+    sub Elatin1::lcfirst_() {
+        return Elatin1::lc(CORE::substr($_,0,1)) . CORE::substr($_,1);
+    }
+
     # lower case with parameter
     sub Elatin1::lc(@) {
         if (@_) {
@@ -579,6 +604,27 @@ sub Elatin1::rindex($$;$) {
             "\xFD" => "\xDD", # LATIN LETTER Y WITH ACUTE
             "\xFE" => "\xDE", # LATIN LETTER THORN (Icelandic)
         );
+    }
+
+    # upper case first with parameter
+    sub Elatin1::ucfirst(@) {
+        if (@_) {
+            my $s = shift @_;
+            if (@_ and wantarray) {
+                return Elatin1::uc(CORE::substr($s,0,1)) . CORE::substr($s,1), @_;
+            }
+            else {
+                return Elatin1::uc(CORE::substr($s,0,1)) . CORE::substr($s,1);
+            }
+        }
+        else {
+            return Elatin1::uc(CORE::substr($_,0,1)) . CORE::substr($_,1);
+        }
+    }
+
+    # upper case first without parameter
+    sub Elatin1::ucfirst_() {
+        return Elatin1::uc(CORE::substr($_,0,1)) . CORE::substr($_,1);
     }
 
     # upper case with parameter
@@ -1676,8 +1722,12 @@ Elatin1 - Run-time routines for Latin1.pm
     Elatin1::rindex(...);
     Elatin1::lc(...);
     Elatin1::lc_;
+    Elatin1::lcfirst(...);
+    Elatin1::lcfirst_;
     Elatin1::uc(...);
     Elatin1::uc_;
+    Elatin1::ucfirst(...);
+    Elatin1::ucfirst_;
     Elatin1::capture(...);
     Elatin1::chr(...);
     Elatin1::chr_;
@@ -1809,6 +1859,15 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   Returns a lowercase version of Latin-1 string (or $_, if omitted). This is the
   internal function implementing the \L escape in double-quoted strings.
 
+=item Lower case first character of string
+
+  $lcfirst = Elatin1::lcfirst($string);
+  $lcfirst = Elatin1::lcfirst_;
+
+  Returns a version of Latin-1 string (or $_, if omitted) with the first character
+  lowercased. This is the internal function implementing the \l escape in double-
+  quoted strings.
+
 =item Upper case string
 
   $uc = Elatin1::uc($string);
@@ -1817,6 +1876,15 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   Returns an uppercased version of Latin-1 string (or $_, if string is omitted).
   This is the internal function implementing the \U escape in double-quoted
   strings.
+
+=item Upper case first character of string
+
+  $ucfirst = Elatin1::ucfirst($string);
+  $ucfirst = Elatin1::ucfirst_;
+
+  Returns a version of Latin-1 string (or $_, if omitted) with the first character
+  uppercased. This is the internal function implementing the \u escape in double-
+  quoted strings.
 
 =item Make capture number
 

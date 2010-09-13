@@ -1,7 +1,7 @@
 package Latin1;
 ######################################################################
 #
-# Latin1 - "Yet Another JPerl" Source code filter to escape Latin-1
+# Latin1 - Source code filter to escape Latin-1
 #
 #                  http://search.cpan.org/dist/Latin1/
 #
@@ -19,7 +19,7 @@ use Elatin1;
 
 BEGIN { eval q{ use vars qw($VERSION $_warning) } }
 
-$VERSION = sprintf '%d.%02d', q$Revision: 0.63 $ =~ m/(\d+)/oxmsg;
+$VERSION = sprintf '%d.%02d', q$Revision: 0.64 $ =~ m/(\d+)/oxmsg;
 
 # poor Symbol.pm - substitute of real Symbol.pm
 BEGIN {
@@ -2170,6 +2170,17 @@ sub e_qq {
     )}oxmsg;
 
     for (my $i=0; $i <= $#char; $i++) {
+
+        # "\L\u" --> "\u\L"
+        if (($char[$i] eq '\L') and ($char[$i+1] eq '\u')) {
+            @char[$i,$i+1] = @char[$i+1,$i];
+        }
+
+        # "\U\l" --> "\l\U"
+        elsif (($char[$i] eq '\U') and ($char[$i+1] eq '\l')) {
+            @char[$i,$i+1] = @char[$i+1,$i];
+        }
+
         if (0) {
         }
 
@@ -2300,6 +2311,17 @@ sub e_heredoc {
     )}oxmsg;
 
     for (my $i=0; $i <= $#char; $i++) {
+
+        # "\L\u" --> "\u\L"
+        if (($char[$i] eq '\L') and ($char[$i+1] eq '\u')) {
+            @char[$i,$i+1] = @char[$i+1,$i];
+        }
+
+        # "\U\l" --> "\l\U"
+        elsif (($char[$i] eq '\U') and ($char[$i+1] eq '\l')) {
+            @char[$i,$i+1] = @char[$i+1,$i];
+        }
+
         if (0) {
         }
 
@@ -2424,6 +2446,17 @@ sub e_qr {
 
     # unescape character
     for (my $i=0; $i <= $#char; $i++) {
+
+        # "\L\u" --> "\u\L"
+        if (($char[$i] eq '\L') and ($char[$i+1] eq '\u')) {
+            @char[$i,$i+1] = @char[$i+1,$i];
+        }
+
+        # "\U\l" --> "\l\U"
+        elsif (($char[$i] eq '\U') and ($char[$i+1] eq '\l')) {
+            @char[$i,$i+1] = @char[$i+1,$i];
+        }
+
         if (0) {
         }
 
@@ -2743,6 +2776,17 @@ sub e_s1 {
 
     # unescape character
     for (my $i=0; $i <= $#char; $i++) {
+
+        # "\L\u" --> "\u\L"
+        if (($char[$i] eq '\L') and ($char[$i+1] eq '\u')) {
+            @char[$i,$i+1] = @char[$i+1,$i];
+        }
+
+        # "\U\l" --> "\l\U"
+        elsif (($char[$i] eq '\U') and ($char[$i+1] eq '\l')) {
+            @char[$i,$i+1] = @char[$i+1,$i];
+        }
+
         if (0) {
         }
 
@@ -3227,6 +3271,17 @@ sub e_split {
 
     # unescape character
     for (my $i=0; $i <= $#char; $i++) {
+
+        # "\L\u" --> "\u\L"
+        if (($char[$i] eq '\L') and ($char[$i+1] eq '\u')) {
+            @char[$i,$i+1] = @char[$i+1,$i];
+        }
+
+        # "\U\l" --> "\l\U"
+        elsif (($char[$i] eq '\U') and ($char[$i+1] eq '\l')) {
+            @char[$i,$i+1] = @char[$i+1,$i];
+        }
+
         if (0) {
         }
 
@@ -3485,7 +3540,7 @@ __END__
 
 =head1 NAME
 
-Latin1 - "Yet Another JPerl" Source code filter to escape Latin-1
+Latin1 - Source code filter to escape Latin-1
 
 =head1 SYNOPSIS
 
@@ -3622,7 +3677,7 @@ You need write 'use Latin1;' in your script.
   ---------------------------------
   Before      After
   ---------------------------------
-  use utf8;   use Latin1;
+  (nothing)   use Latin1;
   ---------------------------------
 
 =head1 Escaping Character Classes (Latin1 software provides)
@@ -3664,7 +3719,9 @@ functions.
   Before      After
   ---------------------------------
   lc          Elatin1::lc
+  lcfirst     Elatin1::lcfirst
   uc          Elatin1::uc
+  ucfirst     Elatin1::ucfirst
   chr         Elatin1::chr
   glob        Elatin1::glob
   ---------------------------------
@@ -3967,7 +4024,7 @@ programming environment like at that time.
  T1008901080816 ZASSHI 08901-8
  http://ascii.asciimw.jp/books/magazines/unix.shtml
 
- Yet Another JPerl family
+ Latin1 software family
  http://search.cpan.org/dist/Big5HKSCS/
  http://search.cpan.org/dist/Big5Plus/
  http://search.cpan.org/dist/EUCJP/
@@ -4017,7 +4074,7 @@ I am thankful to all persons.
  http://www.rakunet.org/TSNET/TSabc/18/546.html
 
  Hiroaki Izumi, Perl5.8/Perl5.10 is not useful on the Windows.
- http://www.aritia.org/hizumi/perl/perlwin.html
+ http://www.aritia.jp/hizumi/oldtext/perlwin.html
 
  TSUKAMOTO Makio, Perl memo/file path of Windows
  http://digit.que.ne.jp/work/wiki.cgi?Perl%E3%83%A1%E3%83%A2%2FWindows%E3%81%A7%E3%81%AE%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E3%83%91%E3%82%B9
@@ -4043,6 +4100,12 @@ I am thankful to all persons.
 
  Juerd, Perl Unicode Advice
  http://juerd.nl/site.plp/perluniadvice
+
+ daily dayflower, 2008-06-25 perluniadvice
+ http://d.hatena.ne.jp/dayflower/20080625/1214374293
+
+ Jesse Vincent, Compatibility is a virtue
+ http://www.nntp.perl.org/group/perl.perl5.porters/2010/05/msg159825.html
 
  Tokyo-pm archive
  http://mail.pm.org/pipermail/tokyo-pm/
