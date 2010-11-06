@@ -1,5 +1,17 @@
 Revision history for this software.
 
+0.66  2010/11/07 00:00:00
+	- emulate two-argument binmode() on perl5.005.
+	- emulate three-argument open() on perl5.005.
+	- dummy functions of utf8.pm and bytes.pm.
+	- correct write locking routine.
+	- bundle warnings.pm_ and warnings/register.pm_.
+	; created by INABA Hitoshi
+
+0.65  2010/09/16 00:00:00
+	- check code page on DOS-like system before test.
+	; created by INABA Hitoshi
+
 0.64  2010/09/14 00:00:00
 	- support SjisTk module.
 	- support \l, \u, lcfirst and ucfirst.
