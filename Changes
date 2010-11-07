@@ -1,5 +1,9 @@
 Revision history for this software.
 
+0.67  2010/11/08 00:00:00
+	- correct 244_3open.t and 245_2binmode.t.
+	; created by INABA Hitoshi
+
 0.66  2010/11/07 00:00:00
 	- emulate two-argument binmode() on perl5.005.
 	- emulate three-argument open() on perl5.005.

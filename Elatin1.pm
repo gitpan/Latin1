@@ -17,7 +17,7 @@ use 5.00503;
 # (and so on)
 
 BEGIN { eval q{ use vars qw($VERSION) } }
-$VERSION = sprintf '%d.%02d', q$Revision: 0.66 $ =~ m/(\d+)/xmsg;
+$VERSION = sprintf '%d.%02d', q$Revision: 0.67 $ =~ m/(\d+)/xmsg;
 
 # use strict qw(subs vars);
 BEGIN {

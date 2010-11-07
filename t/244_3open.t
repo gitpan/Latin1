@@ -200,11 +200,21 @@ else {
     my $file = join('',<FILE>);
     close(FILE);
 
-    if ($file eq ('A' x 11)."\r\n") {
-        print "ok - 11 open(FILE,'>:encoding(latin1)','open.txt'); $^X $__FILE__\n";
+    if ($^O =~ /\A (?: MSWin32 | NetWare | symbian | dos ) \z/oxms) {
+        if ($file eq ('A' x 11)."\r\n") {
+            print "ok - 11 open(FILE,'>:encoding(latin1)','open.txt'); $^X $__FILE__\n";
+        }
+        else {
+            print "not ok - 11 open(FILE,'>:encoding(latin1)','open.txt'); $^X $__FILE__\n";
+        }
     }
     else {
-        print "not ok - 11 open(FILE,'>:encoding(latin1)','open.txt'); $^X $__FILE__\n";
+        if ($file eq ('A' x 11)."\n") {
+            print "ok - 11 open(FILE,'>:encoding(latin1)','open.txt'); $^X $__FILE__\n";
+        }
+        else {
+            print "not ok - 11 open(FILE,'>:encoding(latin1)','open.txt'); $^X $__FILE__\n";
+        }
     }
 }
 
@@ -224,11 +234,21 @@ else {
     my $file = join('',<FILE>);
     close(FILE);
 
-    if ($file eq ('A' x 11)."\r\n".('A' x 12)."\r\n") {
-        print "ok - 12 open(FILE,'>>:encoding(latin1)','open.txt'); $^X $__FILE__\n";
+    if ($^O =~ /\A (?: MSWin32 | NetWare | symbian | dos ) \z/oxms) {
+        if ($file eq ('A' x 11)."\r\n".('A' x 12)."\r\n") {
+            print "ok - 12 open(FILE,'>>:encoding(latin1)','open.txt'); $^X $__FILE__\n";
+        }
+        else {
+            print "not ok - 12 open(FILE,'>>:encoding(latin1)','open.txt'); $^X $__FILE__\n";
+        }
     }
     else {
-        print "not ok - 12 open(FILE,'>>:encoding(latin1)','open.txt'); $^X $__FILE__\n";
+        if ($file eq ('A' x 11)."\n".('A' x 12)."\n") {
+            print "ok - 12 open(FILE,'>>:encoding(latin1)','open.txt'); $^X $__FILE__\n";
+        }
+        else {
+            print "not ok - 12 open(FILE,'>>:encoding(latin1)','open.txt'); $^X $__FILE__\n";
+        }
     }
 }
 
@@ -526,11 +546,21 @@ else {
     my $file = join('',<$fh>);
     close($fh);
 
-    if ($file eq ('A' x 26)."\r\n") {
-        print "ok - 26 open(my \$fh,'>:encoding(latin1)','open.txt'); $^X $__FILE__\n";
+    if ($^O =~ /\A (?: MSWin32 | NetWare | symbian | dos ) \z/oxms) {
+        if ($file eq ('A' x 26)."\r\n") {
+            print "ok - 26 open(my \$fh,'>:encoding(latin1)','open.txt'); $^X $__FILE__\n";
+        }
+        else {
+            print "not ok - 26 open(my \$fh,'>:encoding(latin1)','open.txt'); $^X $__FILE__\n";
+        }
     }
     else {
-        print "not ok - 26 open(my \$fh,'>:encoding(latin1)','open.txt'); $^X $__FILE__\n";
+        if ($file eq ('A' x 26)."\n") {
+            print "ok - 26 open(my \$fh,'>:encoding(latin1)','open.txt'); $^X $__FILE__\n";
+        }
+        else {
+            print "not ok - 26 open(my \$fh,'>:encoding(latin1)','open.txt'); $^X $__FILE__\n";
+        }
     }
 }
 
@@ -550,11 +580,21 @@ else {
     my $file = join('',<$fh>);
     close($fh);
 
-    if ($file eq ('A' x 26)."\r\n".('A' x 27)."\r\n") {
-        print "ok - 27 open(my \$fh,'>>:encoding(latin1)','open.txt'); $^X $__FILE__\n";
+    if ($^O =~ /\A (?: MSWin32 | NetWare | symbian | dos ) \z/oxms) {
+        if ($file eq ('A' x 26)."\r\n".('A' x 27)."\r\n") {
+            print "ok - 27 open(my \$fh,'>>:encoding(latin1)','open.txt'); $^X $__FILE__\n";
+        }
+        else {
+            print "not ok - 27 open(my \$fh,'>>:encoding(latin1)','open.txt'); $^X $__FILE__\n";
+        }
     }
     else {
-        print "not ok - 27 open(my \$fh,'>>:encoding(latin1)','open.txt'); $^X $__FILE__\n";
+        if ($file eq ('A' x 26)."\n".('A' x 27)."\n") {
+            print "ok - 27 open(my \$fh,'>>:encoding(latin1)','open.txt'); $^X $__FILE__\n";
+        }
+        else {
+            print "not ok - 27 open(my \$fh,'>>:encoding(latin1)','open.txt'); $^X $__FILE__\n";
+        }
     }
 }
 

@@ -74,10 +74,6 @@ else {
     print "not ok - 5 binmode(\$fh,':raw'); $^X $__FILE__\n";
 }
 
-END {
-    unlink 'binmode.txt';
-}
-
 # 引数 2 個 :crlf, ベアワード
 
 open(FILE,'>binmode.txt');
@@ -85,21 +81,11 @@ binmode(FILE,':crlf');
 print FILE "\n" x 6;
 close(FILE);
 
-if ($^O =~ /\A (?: MSWin32 | NetWare | symbian | dos ) \z/oxms) {
-    if (-s 'binmode.txt' == 6*2) {
-        print "ok - 6 binmode(FILE,':crlf'); $^X $__FILE__ ($^O)\n";
-    }
-    else {
-        print "not ok - 6 binmode(FILE,':crlf'); $^X $__FILE__ ($^O)\n";
-    }
+if (-s 'binmode.txt' == 6*2) {
+    print "ok - 6 binmode(FILE,':crlf'); $^X $__FILE__ ($^O)\n";
 }
 else {
-    if (-s 'binmode.txt' == 8) {
-        print "ok - 6 binmode(FILE,':crlf'); $^X $__FILE__ ($^O)\n";
-    }
-    else {
-        print "not ok - 6 binmode(FILE,':crlf'); $^X $__FILE__ ($^O)\n";
-    }
+    print "not ok - 6 binmode(FILE,':crlf'); $^X $__FILE__ ($^O)\n";
 }
 
 # 引数 2 個 :crlf, ファイルハンドルが格納された変数
@@ -109,21 +95,11 @@ binmode($fh,':crlf');
 print $fh "\n" x 7;
 close($fh);
 
-if ($^O =~ /\A (?: MSWin32 | NetWare | symbian | dos ) \z/oxms) {
-    if (-s 'binmode.txt' == 7*2) {
-        print "ok - 7 binmode(\$fh,':crlf'); $^X $__FILE__ ($^O)\n";
-    }
-    else {
-        print "not ok - 7 binmode(\$fh,':crlf'); $^X $__FILE__ ($^O)\n";
-    }
+if (-s 'binmode.txt' == 7*2) {
+    print "ok - 7 binmode(\$fh,':crlf'); $^X $__FILE__ ($^O)\n";
 }
 else {
-    if (-s 'binmode.txt' == 9) {
-        print "ok - 7 binmode(\$fh,':crlf'); $^X $__FILE__ ($^O)\n";
-    }
-    else {
-        print "not ok - 7 binmode(\$fh,':crlf'); $^X $__FILE__ ($^O)\n";
-    }
+    print "not ok - 7 binmode(\$fh,':crlf'); $^X $__FILE__ ($^O)\n";
 }
 
 # 引数 2 個 :unknownmode, ベアワード

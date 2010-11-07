@@ -19,7 +19,7 @@ use Elatin1;
 
 BEGIN { eval q{ use vars qw($VERSION $_warning) } }
 
-$VERSION = sprintf '%d.%02d', q$Revision: 0.66 $ =~ m/(\d+)/oxmsg;
+$VERSION = sprintf '%d.%02d', q$Revision: 0.67 $ =~ m/(\d+)/oxmsg;
 
 # poor Symbol.pm - substitute of real Symbol.pm
 BEGIN {

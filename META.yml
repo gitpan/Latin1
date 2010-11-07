@@ -1,7 +1,7 @@
 --- #YAML:1.0
 name: Latin1
 abstract: Source code filter for Latin-1 script
-version: 0.66
+version: 0.67
 author:
   - INABA Hitoshi <ina@cpan.org>
 license: perl
