@@ -17,7 +17,7 @@ use 5.00503;
 # (and so on)
 
 BEGIN { eval q{ use vars qw($VERSION) } }
-$VERSION = sprintf '%d.%02d', q$Revision: 0.67 $ =~ m/(\d+)/xmsg;
+$VERSION = sprintf '%d.%02d', q$Revision: 0.68 $ =~ m/(\d+)/xmsg;
 
 # use strict qw(subs vars);
 BEGIN {
@@ -1608,7 +1608,7 @@ sub Elatin1::binmode(*;$) {
 sub Elatin1::open(*;$@) {
 
     if (@_ == 0) {
-        croak "$0: usage: open(FILEHANDLE [,MODE [,LIST]])";
+        croak "$0: usage: open(FILEHANDLE [,MODE [,EXPR]])";
     }
     elsif (@_ == 1) {
         my $filehandle = gensym;
@@ -1701,41 +1701,7 @@ sub Elatin1::open(*;$@) {
         }
     }
     else {
-        my(undef,$mode,@list) = @_;
-
-        $mode =~ s/ :? encoding\($encoding_alias\) //oxms;
-        $mode =~ s/ :crlf //oxms;
-        my $binmode = $mode =~ s/ :raw //oxms;
-
-        my $expr = '';
-
-        # DOS-like system
-        if ($^O =~ /\A (?: MSWin32 | NetWare | symbian | dos ) \z/oxms) {
-            $expr = join ' ', map {m/ (?:$your_char)*? [ ] /oxms ? qq{"$_"} : $_} @list;
-        }
-
-        # UNIX like system
-        else {
-            $expr = join ' ', map { escapeshellcmd($_) }                   @list;
-        }
-
-        if ($mode eq '|-') {
-            my $open = CORE::open $filehandle, qq{| $expr};
-            if ($open and $binmode) {
-                CORE::binmode $filehandle;
-            }
-            return $open;
-        }
-        elsif ($mode eq '-|') {
-            my $open = CORE::open $filehandle, qq{$expr |};
-            if ($open and $binmode) {
-                CORE::binmode $filehandle;
-            }
-            return $open;
-        }
-        else {
-            croak "$0: open: Unknown open() mode '$mode'";
-        }
+        croak "$0: usage: open(FILEHANDLE [,MODE [,EXPR]])";
     }
 }
 

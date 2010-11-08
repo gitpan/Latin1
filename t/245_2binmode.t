@@ -76,30 +76,40 @@ else {
 
 # 引数 2 個 :crlf, ベアワード
 
-open(FILE,'>binmode.txt');
-binmode(FILE,':crlf');
-print FILE "\n" x 6;
-close(FILE);
-
-if (-s 'binmode.txt' == 6*2) {
-    print "ok - 6 binmode(FILE,':crlf'); $^X $__FILE__ ($^O)\n";
+if ($] =~ /^5\.006/) {
+    print "ok - 6 # SKIP binmode(FILE,':crlf'); $^X $__FILE__ ($^O)\n";
 }
 else {
-    print "not ok - 6 binmode(FILE,':crlf'); $^X $__FILE__ ($^O)\n";
+    open(FILE,'>binmode.txt');
+    binmode(FILE,':crlf');
+    print FILE "\n" x 6;
+    close(FILE);
+
+    if (-s 'binmode.txt' == 6*2) {
+        print "ok - 6 binmode(FILE,':crlf'); $^X $__FILE__ ($^O)\n";
+    }
+    else {
+        print "not ok - 6 binmode(FILE,':crlf'); $^X $__FILE__ ($^O)\n";
+    }
 }
 
 # 引数 2 個 :crlf, ファイルハンドルが格納された変数
 
-open(my $fh,'>binmode.txt');
-binmode($fh,':crlf');
-print $fh "\n" x 7;
-close($fh);
-
-if (-s 'binmode.txt' == 7*2) {
-    print "ok - 7 binmode(\$fh,':crlf'); $^X $__FILE__ ($^O)\n";
+if ($] =~ /^5\.006/) {
+    print "ok - 7 # SKIP binmode(\$fh,':crlf'); $^X $__FILE__ ($^O)\n";
 }
 else {
-    print "not ok - 7 binmode(\$fh,':crlf'); $^X $__FILE__ ($^O)\n";
+    open(my $fh,'>binmode.txt');
+    binmode($fh,':crlf');
+    print $fh "\n" x 7;
+    close($fh);
+
+    if (-s 'binmode.txt' == 7*2) {
+        print "ok - 7 binmode(\$fh,':crlf'); $^X $__FILE__ ($^O)\n";
+    }
+    else {
+        print "not ok - 7 binmode(\$fh,':crlf'); $^X $__FILE__ ($^O)\n";
+    }
 }
 
 # 引数 2 個 :unknownmode, ベアワード

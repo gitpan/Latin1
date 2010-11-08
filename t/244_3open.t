@@ -6,7 +6,7 @@ die "This file is not encoded in Latin-1.\n" if q{Ç†} ne "\x82\xa0";
 my $__FILE__ = __FILE__;
 
 use Latin1;
-print "1..35\n";
+print "1..34\n";
 
 # à¯êî 0 å¬
 
@@ -745,24 +745,6 @@ else {
     }
     else {
         print "not ok - 34 open(my \$fh,'<:raw','open.txt'); $^X $__FILE__\n";
-    }
-}
-
-# à¯êî 4 å¬
-
-if ($^O =~ /\A (?: MSWin32 | NetWare | symbian | dos ) \z/oxms) {
-    print "ok - 35 # SKIP open(my \$pipe, '-|', 'perl', '-e', 'print 1;', '-e', 'print 2;'); $^X $__FILE__\n";
-}
-else {
-    open(my $pipe, '-|', 'perl', '-e', 'print 1;', '-e', 'print 2;');
-    my $data = join '', <$pipe>;
-    close($pipe);
-
-    if ($data eq '12') {
-        print "ok - 35 open(my \$pipe, '-|', 'perl', '-e', 'print 1;', '-e', 'print 2;'); $^X $__FILE__\n";
-    }
-    else {
-        print "not ok - 35 open(my \$pipe, '-|', 'perl', '-e', 'print 1;', '-e', 'print 2;'); $^X $__FILE__\n";
     }
 }
 

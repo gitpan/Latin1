@@ -19,7 +19,7 @@ use Elatin1;
 
 BEGIN { eval q{ use vars qw($VERSION $_warning) } }
 
-$VERSION = sprintf '%d.%02d', q$Revision: 0.67 $ =~ m/(\d+)/oxmsg;
+$VERSION = sprintf '%d.%02d', q$Revision: 0.68 $ =~ m/(\d+)/oxmsg;
 
 # poor Symbol.pm - substitute of real Symbol.pm
 BEGIN {
@@ -3941,10 +3941,10 @@ Back to and see 'Escaping Your Script'. Enjoy hacking!!
 
 =item open (Perl5.6 emulation on perl5.005)
 
-  open(FILEHANDLE, $mode, @list);
+  open(FILEHANDLE, $mode, $expr);
   open(FILEHANDLE, $expr);
   open(FILEHANDLE);
-  open(my $filehandle, $mode, @list);
+  open(my $filehandle, $mode, $expr);
   open(my $filehandle, $expr);
   open(my $filehandle);
 

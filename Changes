@@ -1,5 +1,9 @@
 Revision history for this software.
 
+0.68  2010/11/09 00:00:00
+	- re-correct 244_3open.t and 245_2binmode.t.
+	; created by INABA Hitoshi
+
 0.67  2010/11/08 00:00:00
 	- correct 244_3open.t and 245_2binmode.t.
 	; created by INABA Hitoshi
