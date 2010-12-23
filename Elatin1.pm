@@ -17,7 +17,7 @@ use 5.00503;
 # (and so on)
 
 BEGIN { eval q{ use vars qw($VERSION) } }
-$VERSION = sprintf '%d.%02d', q$Revision: 0.68 $ =~ m/(\d+)/xmsg;
+$VERSION = sprintf '%d.%02d', q$Revision: 0.69 $ =~ m/(\d+)/xmsg;
 
 # use strict qw(subs vars);
 BEGIN {
@@ -26,7 +26,7 @@ BEGIN {
 
 BEGIN {
     my $PERL5LIB = __FILE__;
-    $PERL5LIB =~ s{[^/]*$}{Latin1};
+        $PERL5LIB =~ s{[^/]*$}{Latin1};
     unshift @INC, $PERL5LIB;
 }
 
@@ -35,7 +35,7 @@ BEGIN {
     # instead of utf8.pm
     eval q{
         no warnings qw(redefine);
-        *utf8::upgrade   = sub { length $_[0] };
+        *utf8::upgrade   = sub { CORE::length $_[0] };
         *utf8::downgrade = sub { 1 };
         *utf8::encode    = sub {   };
         *utf8::decode    = sub { 1 };
@@ -43,7 +43,7 @@ BEGIN {
         *utf8::valid     = sub { 1 };
     };
     if ($@) {
-        *utf8::upgrade   = sub { length $_[0] };
+        *utf8::upgrade   = sub { CORE::length $_[0] };
         *utf8::downgrade = sub { 1 };
         *utf8::encode    = sub {   };
         *utf8::decode    = sub { 1 };
@@ -1333,7 +1333,7 @@ sub _dosglob {
     # in Chapter 7. File Access
     # of ISBN 0-596-00313-7 Perl Cookbook, 2nd Edition.
     #
-    # and File::HomeDir::Windows module
+    # and File::HomeDir, File::HomeDir::Windows module
 
     # DOS like system
     if ($^O =~ /\A (?: MSWin32 | NetWare | symbian | dos ) \z/oxms) {
@@ -1353,7 +1353,7 @@ sub _dosglob {
 
     # if we're just beginning, do it all first
     if ($iter{$cxix} == 0) {
-        $entries{$cxix} = [ _do_glob(1, _parse_line($expr)) ];
+            $entries{$cxix} = [ _do_glob(1, _parse_line($expr)) ];
     }
 
     # chuck it all out, quick or slow
@@ -1467,16 +1467,15 @@ OUTER:
         my $pattern = '';
         while ($expr =~ m/ \G ($q_char) /oxgc) {
             my $char = $1;
-            my $uc = Elatin1::uc($char);
-            if ($uc ne $char) {
-                $pattern .= $uc;
-            }
-            elsif ($char eq '*') {
+            if ($char eq '*') {
                 $pattern .= "(?:$your_char)*",
             }
             elsif ($char eq '?') {
                 $pattern .= "(?:$your_char)?",  # DOS style
 #               $pattern .= "(?:$your_char)",   # UNIX style
+            }
+            elsif ((my $uc = Elatin1::uc($char)) ne $char) {
+                $pattern .= $uc;
             }
             else {
                 $pattern .= quotemeta $char;
@@ -1703,15 +1702,6 @@ sub Elatin1::open(*;$@) {
     else {
         croak "$0: usage: open(FILEHANDLE [,MODE [,EXPR]])";
     }
-}
-
-#
-# escape shell command line
-#
-sub escapeshellcmd {
-    my($word) = @_;
-    $word =~ s/([\t\n\r\x20!"#\$%&'()*+;<=>?\[\\\]^`{|}~\x7F\xFF])/\\$1/g;
-    return $word;
 }
 
 #
@@ -2119,11 +2109,13 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   successive name on each call. If $string is omitted, $_ is globbed instead.
   This function function when the pathname ends with chr(0x5C) on MSWin32.
 
-  For example, C<<..\\l*b\\file/*glob.p?>> will work as expected (in that it will
-  find something like '..\lib\File/DosGlob.pm' alright). Note that all path
-  components are case-insensitive, and that backslashes and forward slashes are
-  both accepted, and preserved. You may have to double the backslashes if you are
-  putting them in literally, due to double-quotish parsing of the pattern by perl.
+  For example, C<<..\\l*b\\file/*glob.p?>> on MSWin32 or UNIX will work as
+  expected (in that it will find something like '..\lib\File/DosGlob.pm'
+  alright).
+  Note that all path components are
+  case-insensitive, and that backslashes and forward slashes are both accepted,
+  and preserved. You may have to double the backslashes if you are putting them in
+  literally, due to double-quotish parsing of the pattern by perl.
   A tilde ("~") expands to the current user's home directory.
 
   Spaces in the argument delimit distinct patterns, so C<glob('*.exe *.dll')> globs
