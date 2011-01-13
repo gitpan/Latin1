@@ -5,11 +5,12 @@ package Elatin1;
 #
 #                  http://search.cpan.org/dist/Latin1/
 #
-# Copyright (c) 2008, 2009, 2010 INABA Hitoshi <ina@cpan.org>
+# Copyright (c) 2008, 2009, 2010, 2011 INABA Hitoshi <ina@cpan.org>
 #
 ######################################################################
 
 use 5.00503;
+use strict qw(subs vars);
 
 # 12.3. Delaying use Until Runtime
 # in Chapter 12. Packages, Libraries, and Modules
@@ -17,17 +18,30 @@ use 5.00503;
 # (and so on)
 
 BEGIN { eval q{ use vars qw($VERSION) } }
-$VERSION = sprintf '%d.%02d', q$Revision: 0.69 $ =~ m/(\d+)/xmsg;
-
-# use strict qw(subs vars);
-BEGIN {
-    eval { require strict; 'strict'->import(qw(subs vars)); };
-}
+$VERSION = sprintf '%d.%02d', q$Revision: 0.70 $ =~ m/(\d+)/xmsg;
 
 BEGIN {
     my $PERL5LIB = __FILE__;
+
+    # DOS-like system
+    if ($^O =~ /\A (?: MSWin32 | NetWare | symbian | dos ) \z/oxms) {
         $PERL5LIB =~ s{[^/]*$}{Latin1};
-    unshift @INC, $PERL5LIB;
+    }
+
+    # UNIX-like system
+    else {
+        $PERL5LIB =~ s{[^/]*$}{Latin1};
+    }
+
+    my @inc = ();
+    my %inc = ();
+    for my $path ($PERL5LIB, @INC) {
+        if (not exists $inc{$path}) {
+            push @inc, $path;
+            $inc{$path} = 1;
+        }
+    }
+    @INC = @inc;
 }
 
 BEGIN {
@@ -105,6 +119,7 @@ BEGIN {
     }
 
     sub qualify_to_ref ($;$) {
+        no strict qw(refs);
         return \*{ qualify $_[0], @_ > 1 ? $_[1] : caller };
     }
 }
@@ -129,10 +144,6 @@ sub cluck(@);
 sub confess(@);
 
 my $__FILE__ = __FILE__;
-
-BEGIN { eval q{ use vars qw($_warning) } }
-$_warning = $^W; # push warning, warning on
-local $^W = 1;
 
 BEGIN {
     if ($^X =~ m/ jperl /oxmsi) {
@@ -241,7 +252,14 @@ sub Elatin1::split(;$$$) {
     my $limit   = $_[2];
 
     # if $string is omitted, the function splits the $_ string
-    $string = $_ if not defined $string;
+    if (not defined $string) {
+        if (defined $_) {
+            $string = $_;
+        }
+        else {
+            $string = '';
+        }
+    }
 
     my @split = ();
 
@@ -255,7 +273,7 @@ sub Elatin1::split(;$$$) {
 
         # count of substrings in scalar context
         else {
-            cluck "$0: Use of implicit split to \@_ is deprecated" if $^W;
+            carp "$0: Use of implicit split to \@_ is deprecated" if $^W;
             @_ = @split;
             return scalar @_;
         }
@@ -365,7 +383,7 @@ sub Elatin1::split(;$$$) {
 
     # count of substrings in scalar context
     else {
-        cluck "$0: Use of implicit split to \@_ is deprecated" if $^W;
+        carp "$0: Use of implicit split to \@_ is deprecated" if $^W;
         @_ = @split;
         return scalar @_;
     }
@@ -1335,13 +1353,13 @@ sub _dosglob {
     #
     # and File::HomeDir, File::HomeDir::Windows module
 
-    # DOS like system
+    # DOS-like system
     if ($^O =~ /\A (?: MSWin32 | NetWare | symbian | dos ) \z/oxms) {
         $expr =~ s{ \A ~ (?= [^/\\] ) }
                   { $ENV{'HOME'} || $ENV{'USERPROFILE'} || "$ENV{'HOMEDRIVE'}$ENV{'HOMEPATH'}" }oxmse;
     }
 
-    # UNIX like system
+    # UNIX-like system
     else {
         $expr =~ s{ \A ~ ( (?:[^/])* ) }
                   { $1 ? (getpwnam($1))[7] : ($ENV{'HOME'} || $ENV{'LOGDIR'} || (getpwuid($<))[7]) }oxmse;
@@ -1566,6 +1584,7 @@ sub _parse_path {
 #
 sub Elatin1::binmode(*;$) {
     if (@_ == 1) {
+        local $^W = 0;
         if (ref $_[0]) {
             my $filehandle = qualify_to_ref $_[0];
             return CORE::binmode $filehandle;
@@ -1578,6 +1597,7 @@ sub Elatin1::binmode(*;$) {
         my(undef,$layer) = @_;
         $layer =~ s/ :? encoding\($encoding_alias\) //oxms;
         if ($layer =~ m/\A :raw \z/oxms) {
+            local $^W = 0;
             if ($_[0] =~ m/\A (?: STDIN | STDOUT | STDERR ) \z/oxms) {
                 return CORE::binmode $_[0];
             }
@@ -1611,6 +1631,7 @@ sub Elatin1::open(*;$@) {
     }
     elsif (@_ == 1) {
         my $filehandle = gensym;
+        local $^W = 0;
         my $expr = ${(caller(1))[0] . "::$_[0]"};
         my $ref = \${(caller(1))[0] . "::$_[0]"};
         *{(caller(1))[0] . "::$_[0]"} = $filehandle;
@@ -1895,9 +1916,6 @@ sub confess(@) {
     print STDERR "\n";
     croak @_;
 }
-
-# pop warning
-$^W = $_warning;
 
 1;
 
